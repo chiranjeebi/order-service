@@ -1,10 +1,9 @@
 package com.mycompany.orderservice.controller;
 
-import com.mycompany.orderservice.dto.BookDTO;
 import com.mycompany.orderservice.dto.OrderDTO;
-import com.mycompany.orderservice.entity.OrderEntity;
 import com.mycompany.orderservice.repository.OrderRepository;
 import com.mycompany.orderservice.service.OrderService;
+import com.mycompany.orderservice.service.OrderServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,10 +27,9 @@ public class OrderControllerTest {
 
     @InjectMocks
     private OrderController orderController;
+
     @Mock
-    private OrderRepository orderRepository;
-@Mock
-    private OrderService orderService;
+    private OrderService orderService;;
 
 
     @Test
@@ -40,34 +38,28 @@ public class OrderControllerTest {
         OrderDTO orderDTO=new OrderDTO();
         orderDTO.setId(2L);
         orderDTO.setUserId(3L);
+
 Mockito.when(orderService.placeOrder(Mockito.any())).thenReturn(orderDTO);
-        ResponseEntity<OrderDTO> responseEntity =orderController.placeOrder(orderDTO,2L);
+        ResponseEntity<OrderDTO> responseEntity =orderController.placeOrder(orderDTO,2L);// it takes order dto and value long type
+
         assertEquals(2L, responseEntity.getBody().getId());
         assertEquals(HttpStatus.CREATED.value(), responseEntity.getStatusCodeValue());
-
-
-    }
+   }
 
     @Test
     @DisplayName("scenario for get all order")
     void testGetAllOrders(){
+        List<OrderDTO> dtos=new ArrayList<>();
 
-        List<OrderDTO> orderDTOList=new ArrayList<>();
-        OrderDTO orderDTO=new OrderDTO();
-     orderDTO.setUserId(2L);
-     orderDTO.setId(3L);
-        orderDTOList.add(orderDTO);
-    Optional<OrderEntity> order = orderRepository.findById(3L);
+        OrderDTO dto=new OrderDTO();
+        dto.setId(1l);
+        dto.setUserId(1L);
+      dtos.add(dto);
+      Mockito.when(orderService.getAllOrders(Mockito.any())).thenReturn(dtos);
 
-        Mockito.when(orderService.getAllOrders(Mockito.any())).thenReturn(orderDTOList);
-  ResponseEntity<OrderDTO> responseEntity=orderController.getAllOrders(orderDTOList,2L);
-           assertEquals(2l,responseEntity.getBody().getUserId());
-        assertEquals(HttpStatus.CREATED.value(), responseEntity.getStatusCodeValue());
-
-
+        ResponseEntity<List<OrderDTO>> re=orderController.getAllOrders(1L); //here
+        Assertions.assertEquals(1, re.getBody().size());
 
     }
-
-
 
 }

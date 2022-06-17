@@ -27,7 +27,7 @@ public class OrderController {
     @GetMapping("/orders/users/{userId}")
     public ResponseEntity<List<OrderDTO>> getAllOrders(@PathVariable Long userId){
         List<OrderDTO> orderDTOList = orderService.getAllOrders(userId);
-        ResponseEntity<List<OrderDTO>> responseEntity = new ResponseEntity<>(orderDTOList, HttpStatus.OK);
+        ResponseEntity<List<OrderDTO>> responseEntity = new ResponseEntity<>(orderDTOList, HttpStatus.OK); //what its returning that we do in test calss
         return responseEntity;
     }
 }

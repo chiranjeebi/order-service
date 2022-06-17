@@ -7,8 +7,11 @@ import com.mycompany.orderservice.entity.OrderEntity;
 import com.mycompany.orderservice.repository.OrderRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +21,13 @@ public class OrderServiceImpl implements OrderService{
 
     @Autowired
     private OrderRepository orderRepository;
+  /*  @Autowired
+    private BookFeignClient bookFeignClient;*/
     @Autowired
-    private BookFeignClient bookFeignClient;
+    private RestTemplate restTemplate;
+
+    @Value("${book.service.url:}") //configure in application local profile
+    private String bsBaseUrl;
     @Override
     public OrderDTO placeOrder(OrderDTO orderDTO) {
         OrderEntity orderEntity = new OrderEntity();
@@ -37,7 +45,7 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public List<OrderDTO> getAllOrders(Long userId) {
+    public List<OrderDTO> getAllOrders(Long userId) {     //returning List<OrderDTO>
 
         List<OrderEntity> orderEntities = orderRepository.findAllByUserId(userId);
 
@@ -51,7 +59,14 @@ public class OrderServiceImpl implements OrderService{
             String[] bookIds = oe.getBookIds().split(",");
             orderDTO = new OrderDTO();
             for(String bookId: bookIds){
-                re = bookFeignClient.getBook(Long.parseLong(bookId));
+               // re = bookFeignClient.getBook(Long.parseLong(bookId));
+
+                HttpHeaders headers=new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity httpEntity=new HttpEntity(null,null);
+                ParameterizedTypeReference<BookDTO> typeRef =new ParameterizedTypeReference<BookDTO>() {};
+            re = this.restTemplate.exchange(this.bsBaseUrl+"/books/{bookId}", HttpMethod.GET,httpEntity,typeRef,bookId);
+
                 bookDTO = re.getBody();
                 dtoList.add(bookDTO);
             }
